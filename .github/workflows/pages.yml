@@ -1,4 +1,4 @@
-name: Bursary Site (Auto Build + Deploy)
+name: Bursary SEO Engine
 
 on:
   push:
@@ -21,58 +21,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
 
-      # =========================
-      # CLEAN BUILD FIRST (IMPORTANT)
-      # =========================
-      - name: Prepare public folder
+      - name: Clean public
+        run: rm -rf public && mkdir -p public
+
+      - name: Generate SEO system
+        run: node generate-pages.js
+
+      - name: Generate homepage
+        run: node generators/homepage.js
+
+      - name: Generate sitemap
+        run: node generate-sitemap.js
+
+      - name: Validate output (FAIL SAFE)
         run: |
-          rm -rf public
-          mkdir -p public/bursaries
-          mkdir -p public/assets
+          test -f public/index.html
+          test -f public/sitemap.xml
 
-      # =========================
-      # BUILD EVERYTHING INTO PUBLIC
-      # =========================
-      - name: Generate full SEO system
-       run: node generate-seo-pages.js
+      - uses: actions/configure-pages@v5
 
-      # =========================
-      # SAFETY CHECK (REAL FIX)
-      # =========================
-      - name: Validate build
-        run: |
-          echo "Checking build output..."
-          ls -R public
-
-          if [ ! -f public/index.html ]; then
-            echo "ERROR: Missing public/index.html"
-            exit 1
-          fi
-
-          if [ ! -f public/sitemap.xml ]; then
-            echo "ERROR: Missing public/sitemap.xml"
-            exit 1
-          fi
-
-      # =========================
-      # DEPLOY
-      # =========================
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: ./public
 
@@ -80,10 +56,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
-    # 🔥 THIS FIXES YOUR ERROR
     environment:
       name: github-pages
 
     steps:
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
