@@ -58,8 +58,6 @@ const html = `
 `;
 
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-const fs = require("fs");
-
 fs.writeFileSync("public/index.html", html);
 
 console.log("Homepage generated successfully");
