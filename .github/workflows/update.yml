@@ -29,6 +29,9 @@ jobs:
       - name: Generate bursary pages
         run: node generate-pages.js
 
+      - name: Generate Homepage
+        run: node scripts/generate-homepage.js
+
       - name: Generate Sitemap
         run: node generate-sitemap.js
 
