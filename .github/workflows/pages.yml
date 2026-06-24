@@ -29,22 +29,23 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+      - name: Clean public
+        run: rm -rf public && mkdir -p public
 
     # NEW STEP (AUTOPILOT SCRAPE)
       - name: Fetch latest bursaries (V4 engine)
         run: node scraper.js
 
-      - name: Clean public
-        run: rm -rf public && mkdir -p public
+      - name: Build site
+        run: |
+          rm -rf public
+          mkdir -p public
 
-      - name: Generate SEO system
-        run: node generate-pages.js
+          node generate-pages.js
+          node scripts/generate-homepage.js
+          node generate-sitemap.js
 
-      - name: Generate homepage
-        run: node generators/homepage.js
-
-      - name: Generate sitemap
-        run: node generate-sitemap.js
+          touch public/.nojekyll
 
       - name: Validate output (FAIL SAFE)
         run: |
