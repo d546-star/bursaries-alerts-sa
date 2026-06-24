@@ -1,29 +1,15 @@
-const fs = require("fs");
-const path = require("path");
-
-const data = require("./data/bursaries.json");
-
-const outputDir = path.join(__dirname, "public/bursaries");
+const outputDir = path.join(__dirname, "public", "bursaries");
 
 fs.rmSync(outputDir, { recursive: true, force: true });
 fs.mkdirSync(outputDir, { recursive: true });
 
-data.forEach(b => {
-  const html = `
-  <html>
-    <head>
-      <title>${b.name}</title>
-    </head>
-    <body>
-      <h1>${b.name}</h1>
-      <p>${b.description || ""}</p>
-      <p>Closing Date: ${b.closingDate || "TBA"}</p>
-    </body>
-  </html>
-  `;
+const fs = require("fs");
+const path = require("path");
 
-  fs.writeFileSync(
-    path.join(outputDir, `${b.slug}.html`),
-    html
-  );
-});
+const dataPath = path.join(__dirname, "data", "bursaries.json");
+
+if (!fs.existsSync(dataPath)) {
+  throw new Error("Missing data/bursaries.json");
+}
+
+const bursaries = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
