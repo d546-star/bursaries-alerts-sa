@@ -1,0 +1,12 @@
+[
+  {
+    "name": "NSFAS",
+    "url": "https://example.com/nsfas-bursaries.json",
+    "type": "json"
+  },
+  {
+    "name": "Public Listings",
+    "url": "https://example.com/bursaries-feed.json",
+    "type": "json"
+  }
+]
