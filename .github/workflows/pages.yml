@@ -41,6 +41,12 @@ jobs:
       - name: Generate homepage
         run: node scripts/generate-homepage.js
 
+      - name: Debug homepage output
+        run: |
+          echo "Checking where homepage is generated..."
+          find . -name "index.html"
+          ls -R
+
       - name: Generate sitemap
         run: node generate-sitemap.js
 
