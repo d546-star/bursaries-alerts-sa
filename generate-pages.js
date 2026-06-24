@@ -1,67 +1,108 @@
 const fs = require("fs");
 const path = require("path");
 
-const data = JSON.parse(
+const bursaries = JSON.parse(
   fs.readFileSync(path.join(__dirname, "data", "bursaries.json"))
 );
 
-// EXPAND DATA → 300+ pages automatically
-function expandBursaries(base) {
-  const output = [];
+const categories = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "data", "categories.json"))
+);
 
-  const categories = [
-    "Engineering", "IT", "Medicine", "Nursing",
-    "Finance", "Law", "Teaching", "Science"
-  ];
+const publicDir = path.join(__dirname, "public");
+const bursaryRoot = path.join(publicDir, "bursaries");
 
-  let id = 0;
+fs.rmSync(publicDir, { recursive: true, force: true });
+fs.mkdirSync(bursaryRoot, { recursive: true });
 
-  for (let i = 0; i < 40; i++) {
-    for (const cat of categories) {
-      base.forEach(b => {
-        output.push({
-          name: `${b.name} - ${cat} (${2026 + (i % 2)})`,
-          slug: `${b.slug}-${cat.toLowerCase()}-${i}`,
-          description: `${b.description} - Funding for ${cat} students`,
-          closingDate: b.closingDate
-        });
-        id++;
-      });
-    }
-  }
+let allPages = [];
 
-  return output; // 300–800+ pages
-}
+// ============================
+// CATEGORY LANDING PAGES
+// ============================
+for (const cat of categories) {
+  const catDir = path.join(bursaryRoot, cat);
+  fs.mkdirSync(catDir, { recursive: true });
 
-const bursaries = expandBursaries(data);
-
-// CLEAN OUTPUT
-const outDir = path.join(__dirname, "public", "bursaries");
-fs.rmSync(outDir, { recursive: true, force: true });
-fs.mkdirSync(outDir, { recursive: true });
-
-// GENERATE PAGES
-for (const b of bursaries) {
-  const html = `
+  const catHtml = `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>${b.name}</title>
-  <meta name="description" content="${b.description}">
-  <link rel="canonical" href="https://d546-star.github.io/bursaries-alerts-sa/bursaries/${b.slug}.html">
+  <title>${cat.toUpperCase()} Bursaries South Africa</title>
+  <meta name="description" content="Find ${cat} bursaries in South Africa">
 </head>
 <body>
-  <h1>${b.name}</h1>
-  <p>${b.description}</p>
-  <p>Closing Date: ${b.closingDate}</p>
+  <h1>${cat.toUpperCase()} Bursaries</h1>
+  <ul>
+    ${bursaries.map((b, i) => `
+      <li>
+        <a href="/bursaries/${cat}/${b.slug}-${i}.html">
+          ${b.title} - ${cat}
+        </a>
+      </li>
+    `).join("")}
+  </ul>
 </body>
 </html>
   `;
 
   fs.writeFileSync(
-    path.join(outDir, `${b.slug}.html`),
-    html
+    path.join(catDir, "index.html"),
+    catHtml
   );
+
+  allPages.push(`/bursaries/${cat}/index.html`);
 }
 
-console.log(`Generated ${bursaries.length} SEO pages`);
+// ============================
+// BURSARY PAGES (SEO CLUSTERED)
+// ============================
+categories.forEach(cat => {
+  bursaries.forEach((b, i) => {
+    const dir = path.join(bursaryRoot, cat);
+
+    const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${b.title} - ${cat}</title>
+  <meta name="description" content="${b.description} - ${cat} bursary in South Africa">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Scholarship",
+    "name": "${b.title}",
+    "description": "${b.description}",
+    "provider": "South African Bursary Portal"
+  }
+  </script>
+</head>
+
+<body>
+  <h1>${b.title}</h1>
+  <p>${b.description}</p>
+
+  <p><b>Category:</b> ${cat}</p>
+
+  <a href="/bursaries/${cat}/index.html">← More ${cat} bursaries</a>
+
+  <hr>
+
+  <h3>Related bursaries</h3>
+  <ul>
+    ${bursaries.slice(0, 5).map(x =>
+      `<li><a href="#">${x.title}</a></li>`
+    ).join("")}
+  </ul>
+</body>
+</html>
+    `;
+
+    const file = path.join(dir, `${b.slug}-${i}.html`);
+    fs.writeFileSync(file, html);
+
+    allPages.push(`/bursaries/${cat}/${b.slug}-${i}.html`);
+  });
+});
+
+console.log("V3 SEO system generated");
