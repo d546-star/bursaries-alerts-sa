@@ -36,9 +36,9 @@ jobs:
       - name: Fetch latest bursaries (V4 engine)
         run: node scraper.js
 
-      - name: Build site (SAFE MODE)
+      - name: Build site (SAFE FIXED)
         run: |
-         set -e
+          set -e
 
           echo "Cleaning public..."
           rm -rf public
@@ -54,21 +54,24 @@ jobs:
           echo "Generating sitemap..."
           node generate-sitemap.js
 
-          echo "Copying required files..."
+          echo "Checking outputs..."
 
-          # FORCE SAFETY CHECKS
-          if [ ! -f index.html ]; then
-            echo "ERROR: index.html missing in root"
-            exit 1
-          fi
+          # ✅ FIXED CHECK (correct path)
+          if [ ! -f public/index.html ]; then
+            echo "ERROR: public/index.html missing"
+              echo "Debugging files:"
+              find . -name "index.html"
+              exit 1
+            fi
 
-          cp index.html public/index.html
-          cp sitemap.xml public/sitemap.xml || true
+          echo "Copying files..."
+          cp public/index.html public/index.html || true
+          cp public/sitemap.xml public/sitemap.xml || true
           cp -r bursaries public/ || true
           cp -r assets public/ || true
 
           touch public/.nojekyll
-      
+
           echo "Build complete"
           
       - name: Validate homepage exists
