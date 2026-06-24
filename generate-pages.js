@@ -1,73 +1,57 @@
 const fs = require("fs");
 const path = require("path");
-const { buildLinks } = require("./link-graph");
 
-const bursaries = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "data", "bursaries.json"))
-);
+const dataPath = path.join(__dirname, "data", "bursaries.json");
+const bursaries = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
 
-const categories = ["engineering", "it", "medicine", "finance"];
+const outputDir = path.join(__dirname, "public");
+const bursaryDir = path.join(outputDir, "bursaries");
 
-const outDir = path.join(__dirname, "public", "bursaries");
-fs.rmSync(outDir, { recursive: true, force: true });
-fs.mkdirSync(outDir, { recursive: true });
+fs.rmSync(outputDir, { recursive: true, force: true });
+fs.mkdirSync(bursaryDir, { recursive: true });
 
-categories.forEach(cat => {
-  bursaries.forEach(b => {
-
-    const html = `
+// ============ INDEX PAGE ============
+const indexHtml = `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>${b.title} - ${cat} Bursary South Africa</title>
-
-  <meta name="description" content="${b.description} - Apply for ${cat} bursaries in South Africa 2026">
-
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- AdSense-safe structure -->
+  <title>Bursary Alerts SA</title>
+  <meta name="description" content="Latest bursaries in South Africa">
 </head>
-
 <body>
-
-  <header>
-    <h1>${b.title}</h1>
-    <p>${b.description}</p>
-  </header>
-
-  <section>
-    <h2>Eligibility</h2>
-    <p>Open to South African students interested in ${cat} studies.</p>
-  </section>
-
-  <section>
-    <h2>Study Fields Covered</h2>
-    <ul>
-      <li>${cat}</li>
-      <li>Related STEM fields</li>
-    </ul>
-  </section>
-
-  <section>
-    <h2>Related Bursaries</h2>
-    <ul>
-      ${buildLinks(b, cat)}
-    </ul>
-  </section>
-
-  <footer>
-    <p>Updated 2026 bursary database - South Africa</p>
-  </footer>
-
+  <h1>Bursaries SA</h1>
+  <ul>
+    ${bursaries.map(b =>
+      `<li><a href="/bursaries/${b.slug}.html">${b.name}</a></li>`
+    ).join("")}
+  </ul>
 </body>
 </html>
-    `;
+`;
 
-    fs.writeFileSync(
-      path.join(outDir, `${cat}-${b.slug}.html`),
-      html
-    );
-  });
+fs.writeFileSync(path.join(outputDir, "index.html"), indexHtml);
+
+// ============ BURSARY PAGES ============
+bursaries.forEach(b => {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${b.name}</title>
+  <meta name="description" content="${b.description}">
+</head>
+<body>
+  <h1>${b.name}</h1>
+  <p>${b.description}</p>
+  <p>Closing: ${b.closingDate}</p>
+</body>
+</html>
+  `;
+
+  fs.writeFileSync(
+    path.join(bursaryDir, `${b.slug}.html`),
+    html
+  );
 });
 
-console.log("V5 pages generated with link graph");
+console.log("V6 pages generated");
