@@ -1,0 +1,102 @@
+name: Bursary Site (Auto Build + Deploy)
+
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      # =========================
+      # GENERATION PHASE
+      # =========================
+      - name: Generate pages
+        run: node generate-pages.js
+
+      - name: Generate homepage
+        run: node scripts/generate-homepage.js
+
+      - name: Generate sitemap
+        run: node generate-sitemap.js
+
+      # =========================
+      # DEBUG (DO NOT REMOVE)
+      # =========================
+      - name: Debug file output
+        run: |
+          echo "ROOT FILES:"
+          ls -R
+
+      # =========================
+      # BUILD PUBLIC FOLDER
+      # =========================
+      - name: Build public folder
+        run: |
+          rm -rf public
+          mkdir -p public/bursaries
+          mkdir -p public/assets
+
+          cp index.html public/ 2>/dev/null || echo "WARNING: index.html missing"
+          cp sitemap.xml public/ 2>/dev/null || echo "WARNING: sitemap.xml missing"
+          cp -r bursaries public/ 2>/dev/null || echo "WARNING: bursaries missing"
+          cp -r assets public/ 2>/dev/null || echo "WARNING: assets missing"
+
+          touch public/.nojekyll
+
+      # =========================
+      # VALIDATION (FAIL SAFE)
+      # =========================
+      - name: Validate build
+        run: |
+          if [ ! -f public/index.html ]; then
+            echo "ERROR: Missing index.html in public"
+            exit 1
+          fi
+
+      # =========================
+      # PAGES DEPLOYMENT
+      # =========================
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # 🔥 THIS FIXES YOUR ERROR
+    environment:
+      name: github-pages
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
