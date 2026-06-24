@@ -1,36 +1,25 @@
 const fs = require("fs");
-const path = require("path");
+const baseUrl = "https://d546-star.github.io/bursaries-alerts-sa";
 
-const base = "https://d546-star.github.io/bursaries-alerts-sa";
+const bursaries = require("./data/bursaries.json");
 
-const files = [];
+let urls = [
+  "/",
+  ...bursaries.map(b => `/bursaries/${b.slug}.html`)
+];
 
-function walk(dir, urlPath) {
-  fs.readdirSync(dir).forEach(file => {
-    const full = path.join(dir, file);
-    const stat = fs.statSync(full);
+let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    if (stat.isDirectory()) {
-      walk(full, urlPath + "/" + file);
-    } else {
-      files.push(urlPath + "/" + file);
-    }
-  });
-}
-
-walk(path.join(__dirname, "public"), "");
-
-let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
-
-files.forEach(f => {
-  xml += `<url><loc>${base}${f}</loc></url>\n`;
+urls.forEach(u => {
+  xml += `
+  <url>
+    <loc>${baseUrl}${u}</loc>
+  </url>`;
 });
 
-xml += `</urlset>`;
+xml += "\n</urlset>";
 
-fs.writeFileSync(
-  path.join(__dirname, "public", "sitemap.xml"),
-  xml
-);
+fs.writeFileSync("public/sitemap.xml", xml);
 
-console.log("V3 sitemap generated");
+console.log("V6 sitemap generated");
