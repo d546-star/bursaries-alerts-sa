@@ -44,14 +44,8 @@ jobs:
       # =========================
       # BUILD EVERYTHING INTO PUBLIC
       # =========================
-      - name: Generate bursary pages
-        run: node generate-pages.js
-
-      - name: Generate homepage (FIXED OUTPUT PATH)
-        run: node scripts/generate-homepage.js
-
-      - name: Generate sitemap (FIXED OUTPUT PATH)
-        run: node generate-sitemap.js
+      - name: Generate full SEO system
+       run: node generate-seo-pages.js
 
       # =========================
       # SAFETY CHECK (REAL FIX)
