@@ -1,0 +1,56 @@
+[
+  {
+    "title": "NSFAS Funding",
+    "slug": "nsfas-2026-funding",
+    "description": "Government student funding",
+    "link": "https://www.nsfas.org.za"
+  },
+  {
+    "title": "Capitec Bursary",
+    "slug": "capitec-bursary",
+    "description": "Banking bursary",
+    "link": "https://www.capitecbank.co.za"
+  },
+  {
+    "title": "Sasol Engineering Bursary",
+    "slug": "sasol-engineering-bursary",
+    "description": "Engineering studies support",
+    "link": "https://www.sasol.com"
+  },
+  {
+    "title": "Transnet Bursary",
+    "slug": "transnet-bursary",
+    "description": "Transport sector bursary",
+    "link": "https://www.transnet.net"
+  },
+  {
+    "title": "Eskom Bursary",
+    "slug": "eskom-bursary",
+    "description": "Energy sector bursary",
+    "link": "https://www.eskom.co.za"
+  },
+  {
+    "title": "Vodacom Bursary",
+    "slug": "vodacom-bursary",
+    "description": "Technology bursary",
+    "link": "https://www.vodacom.co.za"
+  },
+  {
+    "title": "Nedbank Bursary",
+    "slug": "nedbank-bursary",
+    "description": "Finance bursary",
+    "link": "https://www.nedbank.co.za"
+  },
+  {
+    "title": "Standard Bank Bursary",
+    "slug": "standard-bank-bursary",
+    "description": "Banking bursary",
+    "link": "https://www.standardbank.co.za"
+  },
+  {
+    "title": "Funza Lushaka Bursary",
+    "slug": "funza-lushaka-bursary",
+    "description": "Teaching bursary",
+    "link": "https://www.education.gov.za"
+  }
+]
