@@ -14,7 +14,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -36,16 +36,40 @@ jobs:
       - name: Fetch latest bursaries (V4 engine)
         run: node scraper.js
 
-      - name: Build site
+      - name: Build site (SAFE MODE)
         run: |
-          rm -rf public
-          mkdir -p public
+         set -e
 
+          echo "Cleaning public..."
+          rm -rf public
+          mkdir -p public/bursaries
+          mkdir -p public/assets
+
+          echo "Generating pages..."
           node generate-pages.js
+
+          echo "Generating homepage..."
           node scripts/generate-homepage.js
+
+          echo "Generating sitemap..."
           node generate-sitemap.js
 
+          echo "Copying required files..."
+
+          # FORCE SAFETY CHECKS
+          if [ ! -f index.html ]; then
+            echo "ERROR: index.html missing in root"
+            exit 1
+          fi
+
+          cp index.html public/index.html
+          cp sitemap.xml public/sitemap.xml || true
+          cp -r bursaries public/ || true
+          cp -r assets public/ || true
+
           touch public/.nojekyll
+      
+          echo "Build complete"
           
       - name: Validate homepage exists
         run: |
@@ -72,4 +96,6 @@ jobs:
       name: github-pages
 
     steps:
-      - uses: actions/deploy-pages@v4
+      - uses: actions/setup-node@v4
+        with:
+         node-version: 22
