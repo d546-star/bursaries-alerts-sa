@@ -1,25 +1,26 @@
 const fs = require("fs");
+const path = require("path");
 
-const baseUrl = "https://d546-star.github.io/bursaries-alerts-sa";
+const base = "https://d546-star.github.io/bursaries-alerts-sa";
 
-const pages = [
-  "/",
-  "/index.html"
-];
+const files = fs.readdirSync(
+  path.join(__dirname, "public", "bursaries")
+);
 
-// If you have bursaries.json, include dynamic pages
-let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-pages.forEach(p => {
-  xml += `
-  <url>
-    <loc>${baseUrl}${p}</loc>
-  </url>`;
+// homepage
+xml += `<url><loc>${base}/</loc></url>\n`;
+
+files.forEach(f => {
+  xml += `<url><loc>${base}/bursaries/${f}</loc></url>\n`;
 });
 
-xml += "\n</urlset>";
+xml += `</urlset>`;
 
-fs.writeFileSync("public/sitemap.xml", xml);
+fs.writeFileSync(
+  path.join(__dirname, "..", "public", "sitemap.xml"),
+  xml
+);
 
-console.log("Sitemap generated");
+console.log("Sitemap built");
