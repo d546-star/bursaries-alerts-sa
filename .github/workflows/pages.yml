@@ -61,19 +61,16 @@ jobs:
       # =========================
       # BUILD PUBLIC FOLDER
       # =========================
-      - name: Build public folder
+      - name: Build site
         run: |
           rm -rf public
-          mkdir -p public/bursaries
-          mkdir -p public/assets
+          mkdir -p public
 
-          cp index.html public/ 2>/dev/null || echo "WARNING: index.html missing"
-          cp sitemap.xml public/ 2>/dev/null || echo "WARNING: sitemap.xml missing"
-          cp -r bursaries public/ 2>/dev/null || echo "WARNING: bursaries missing"
-          cp -r assets public/ 2>/dev/null || echo "WARNING: assets missing"
+          node generate-pages.js
+          node scripts/generate-homepage.js
+          node generate-sitemap.js
 
           touch public/.nojekyll
-
       # =========================
       # VALIDATION (FAIL SAFE)
       # =========================
