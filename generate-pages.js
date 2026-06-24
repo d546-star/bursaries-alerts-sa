@@ -1,108 +1,73 @@
 const fs = require("fs");
 const path = require("path");
+const { buildLinks } = require("./link-graph");
 
 const bursaries = JSON.parse(
   fs.readFileSync(path.join(__dirname, "data", "bursaries.json"))
 );
 
-const categories = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "data", "categories.json"))
-);
+const categories = ["engineering", "it", "medicine", "finance"];
 
-const publicDir = path.join(__dirname, "public");
-const bursaryRoot = path.join(publicDir, "bursaries");
+const outDir = path.join(__dirname, "public", "bursaries");
+fs.rmSync(outDir, { recursive: true, force: true });
+fs.mkdirSync(outDir, { recursive: true });
 
-fs.rmSync(publicDir, { recursive: true, force: true });
-fs.mkdirSync(bursaryRoot, { recursive: true });
-
-let allPages = [];
-
-// ============================
-// CATEGORY LANDING PAGES
-// ============================
-for (const cat of categories) {
-  const catDir = path.join(bursaryRoot, cat);
-  fs.mkdirSync(catDir, { recursive: true });
-
-  const catHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>${cat.toUpperCase()} Bursaries South Africa</title>
-  <meta name="description" content="Find ${cat} bursaries in South Africa">
-</head>
-<body>
-  <h1>${cat.toUpperCase()} Bursaries</h1>
-  <ul>
-    ${bursaries.map((b, i) => `
-      <li>
-        <a href="/bursaries/${cat}/${b.slug}-${i}.html">
-          ${b.title} - ${cat}
-        </a>
-      </li>
-    `).join("")}
-  </ul>
-</body>
-</html>
-  `;
-
-  fs.writeFileSync(
-    path.join(catDir, "index.html"),
-    catHtml
-  );
-
-  allPages.push(`/bursaries/${cat}/index.html`);
-}
-
-// ============================
-// BURSARY PAGES (SEO CLUSTERED)
-// ============================
 categories.forEach(cat => {
-  bursaries.forEach((b, i) => {
-    const dir = path.join(bursaryRoot, cat);
+  bursaries.forEach(b => {
 
     const html = `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>${b.title} - ${cat}</title>
-  <meta name="description" content="${b.description} - ${cat} bursary in South Africa">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Scholarship",
-    "name": "${b.title}",
-    "description": "${b.description}",
-    "provider": "South African Bursary Portal"
-  }
-  </script>
+  <title>${b.title} - ${cat} Bursary South Africa</title>
+
+  <meta name="description" content="${b.description} - Apply for ${cat} bursaries in South Africa 2026">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- AdSense-safe structure -->
 </head>
 
 <body>
-  <h1>${b.title}</h1>
-  <p>${b.description}</p>
 
-  <p><b>Category:</b> ${cat}</p>
+  <header>
+    <h1>${b.title}</h1>
+    <p>${b.description}</p>
+  </header>
 
-  <a href="/bursaries/${cat}/index.html">← More ${cat} bursaries</a>
+  <section>
+    <h2>Eligibility</h2>
+    <p>Open to South African students interested in ${cat} studies.</p>
+  </section>
 
-  <hr>
+  <section>
+    <h2>Study Fields Covered</h2>
+    <ul>
+      <li>${cat}</li>
+      <li>Related STEM fields</li>
+    </ul>
+  </section>
 
-  <h3>Related bursaries</h3>
-  <ul>
-    ${bursaries.slice(0, 5).map(x =>
-      `<li><a href="#">${x.title}</a></li>`
-    ).join("")}
-  </ul>
+  <section>
+    <h2>Related Bursaries</h2>
+    <ul>
+      ${buildLinks(b, cat)}
+    </ul>
+  </section>
+
+  <footer>
+    <p>Updated 2026 bursary database - South Africa</p>
+  </footer>
+
 </body>
 </html>
     `;
 
-    const file = path.join(dir, `${b.slug}-${i}.html`);
-    fs.writeFileSync(file, html);
-
-    allPages.push(`/bursaries/${cat}/${b.slug}-${i}.html`);
+    fs.writeFileSync(
+      path.join(outDir, `${cat}-${b.slug}.html`),
+      html
+    );
   });
 });
 
-console.log("V3 SEO system generated");
+console.log("V5 pages generated with link graph");
