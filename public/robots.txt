@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://d546-star.github.io/bursary-alerts-sa/sitemap.xml
+Sitemap: /sitemap.xml
