@@ -1,0 +1,73 @@
+name: Daily Bursary Update
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run update script
+        run: npm install && npm run update
+
+      - run: npm install && npm run update
+
+      - name: Generate SEO Pages
+        run: node generate-pages.js
+
+      - name: Build site
+        run: |
+          mkdir -p public
+          cp bursaries.json public/bursaries.json
+          
+      - name: Commit changes
+        run: |
+          git config --global user.name "auto-bot"
+          git config --global user.email "bot@github.com"
+          git add bursaries.json
+          git diff --cached --quiet || git commit -m "auto update"
+          git push
+      - name: Generate AI SEO Pages
+        run: node generate-ai-pages.js
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      
+      - name: Ensure folders exist
+        run: |
+          mkdir -p public
+          mkdir -p public/bursary
+          
+      - name: Commit changes
+        run: |
+          git config user.name "auto-bot"
+          git config user.email "bot@github.com"
+
+          git add .
+
+          git diff --cached --quiet || git commit -m "auto update"
+
+          git push || echo "Push failed but continuing"
+
+      - name: Upload site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
