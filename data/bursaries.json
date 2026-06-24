@@ -3,12 +3,16 @@
     "name": "NSFAS Bursary 2026",
     "slug": "nsfas-bursary-2026",
     "description": "Government funding for South African students",
-    "closingDate": "2026-09-30"
+    "closingDate": "2026-09-30",
+    "field": "general",
+    "province": "national"
   },
   {
-    "name": "Sasol Bursary 2026",
-    "slug": "sasol-bursary-2026",
-    "description": "Engineering and science bursary",
-    "closingDate": "2026-08-31"
+    "name": "Sasol Engineering Bursary",
+    "slug": "sasol-engineering-bursary",
+    "description": "Engineering and science funding",
+    "closingDate": "2026-08-31",
+    "field": "engineering",
+    "province": "national"
   }
 ]
