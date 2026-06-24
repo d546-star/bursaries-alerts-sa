@@ -32,27 +32,37 @@ const indexHtml = `
 fs.writeFileSync(path.join(outputDir, "index.html"), indexHtml);
 
 // ============ BURSARY PAGES ============
-bursaries.forEach(b => {
-  const html = `
+function seoTemplate(b, relatedLinks = []) {
+  return `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>${b.name}</title>
+  <title>${b.name} 2026 | Apply Now</title>
   <meta name="description" content="${b.description}">
 </head>
 <body>
-  <h1>${b.name}</h1>
-  <p>${b.description}</p>
-  <p>Closing: ${b.closingDate}</p>
+
+<h1>${b.name}</h1>
+
+<p>${b.description}</p>
+
+<h2>Details</h2>
+<ul>
+  <li>Closing Date: ${b.closingDate}</li>
+  <li>Category: ${b.category}</li>
+</ul>
+
+<h2>Related Bursaries</h2>
+<ul>
+  ${relatedLinks.map(l =>
+    `<li><a href="/bursaries/${l.slug}.html">${l.name}</a></li>`
+  ).join("")}
+</ul>
+
 </body>
 </html>
-  `;
-
-  fs.writeFileSync(
-    path.join(bursaryDir, `${b.slug}.html`),
-    html
-  );
-});
+`;
+}
 // =====================
 // CATEGORY ENGINE (STEP 4)
 // =====================
