@@ -43,8 +43,8 @@ jobs:
           git add bursaries.json
           git diff --cached --quiet || git commit -m "auto update"
           git push
-      - name: Generate AI SEO Pages
-        run: node generate-ai-pages.js
+#      - name: Generate AI SEO Pages
+#        run: node generate-ai-pages.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       
