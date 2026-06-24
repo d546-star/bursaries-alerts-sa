@@ -34,15 +34,6 @@ jobs:
       - name: Fetch latest bursaries (V4 engine)
         run: node scraper.js
 
-      - name: Generate SEO pages
-        run: node generate-pages.js
-
-      - name: Generate homepage
-        run: node generators/homepage.js
-
-      - name: Generate sitemap
-        run: node generate-sitemap.js
-
       - name: Clean public
         run: rm -rf public && mkdir -p public
 
