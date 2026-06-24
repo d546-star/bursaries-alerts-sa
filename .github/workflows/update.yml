@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Node
@@ -23,46 +23,30 @@ jobs:
         with:
           node-version: 22
 
-      - name: Run update script
-        run: npm install && npm run update
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm install && npm run update
-
-      - name: Generate SEO Pages
+      - name: Generate bursary pages
         run: node generate-pages.js
 
-      - name: Build site
+      - name: Generate sitemap
+        run: node generate-sitemap.js
+
+      - name: Create public folder
         run: |
-          mkdir -p public
-          cp bursaries.json public/bursaries.json
-          
-      - name: Commit changes
+          rm -rf public
+          mkdir -p public/bursaries
+          mkdir -p public/assets
+
+      - name: Copy site files
         run: |
-          git config --global user.name "auto-bot"
-          git config --global user.email "bot@github.com"
-          git add bursaries.json
-          git diff --cached --quiet || git commit -m "auto update"
-          git push
-#      - name: Generate AI SEO Pages
-#        run: node generate-ai-pages.js
+          cp -r public/* public/ || true
+          cp index.html public/ || true
+          cp -r assets public/ || true
+          touch public/.nojekyll
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      
-      - name: Ensure folders exist
-        run: |
-          mkdir -p public
-          mkdir -p public/bursary
-          
-      - name: Commit changes
-        run: |
-          git config user.name "auto-bot"
-          git config user.email "bot@github.com"
-
-          git add .
-
-          git diff --cached --quiet || git commit -m "auto update"
-
-          git push || echo "Push failed but continuing"
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
