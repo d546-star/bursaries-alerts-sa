@@ -33,56 +33,46 @@ jobs:
         run: npm install
 
       # =========================
-      # GENERATION PHASE
+      # CLEAN BUILD FIRST (IMPORTANT)
       # =========================
-      - name: Generate pages
+      - name: Prepare public folder
+        run: |
+          rm -rf public
+          mkdir -p public/bursaries
+          mkdir -p public/assets
+
+      # =========================
+      # BUILD EVERYTHING INTO PUBLIC
+      # =========================
+      - name: Generate bursary pages
         run: node generate-pages.js
 
-      - name: Generate homepage
+      - name: Generate homepage (FIXED OUTPUT PATH)
         run: node scripts/generate-homepage.js
 
-      - name: Debug homepage output
-        run: |
-          echo "Checking where homepage is generated..."
-          find . -name "index.html"
-          ls -R
-
-      - name: Generate sitemap
+      - name: Generate sitemap (FIXED OUTPUT PATH)
         run: node generate-sitemap.js
 
       # =========================
-      # DEBUG (DO NOT REMOVE)
-      # =========================
-      - name: Debug file output
-        run: |
-          echo "ROOT FILES:"
-          ls -R
-
-      # =========================
-      # BUILD PUBLIC FOLDER
-      # =========================
-      - name: Build site
-        run: |
-          rm -rf public
-          mkdir -p public
-
-          node generate-pages.js
-          node scripts/generate-homepage.js
-          node generate-sitemap.js
-
-          touch public/.nojekyll
-      # =========================
-      # VALIDATION (FAIL SAFE)
+      # SAFETY CHECK (REAL FIX)
       # =========================
       - name: Validate build
         run: |
+          echo "Checking build output..."
+          ls -R public
+
           if [ ! -f public/index.html ]; then
-            echo "ERROR: Missing index.html in public"
+            echo "ERROR: Missing public/index.html"
+            exit 1
+          fi
+
+          if [ ! -f public/sitemap.xml ]; then
+            echo "ERROR: Missing public/sitemap.xml"
             exit 1
           fi
 
       # =========================
-      # PAGES DEPLOYMENT
+      # DEPLOY
       # =========================
       - name: Setup Pages
         uses: actions/configure-pages@v5
