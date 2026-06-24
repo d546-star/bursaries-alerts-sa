@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -26,28 +26,41 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # =========================
+      # BUILD PHASE
+      # =========================
       - name: Generate bursary pages
         run: node generate-pages.js
 
-      - name: Generate Homepage
+      - name: Generate homepage
         run: node scripts/generate-homepage.js
 
-      - name: Generate Sitemap
+      - name: Generate sitemap
         run: node generate-sitemap.js
 
-      - name: Create public folder
+      # =========================
+      # DEPLOY FOLDER SETUP
+      # =========================
+      - name: Prepare public folder
         run: |
           rm -rf public
           mkdir -p public/bursaries
           mkdir -p public/assets
 
-      - name: Copy site files
+      # =========================
+      # COPY OUTPUT FILES (FIXED)
+      # =========================
+      - name: Move generated files into public
         run: |
-          cp -r public/* public/ || true
           cp index.html public/ || true
+          cp sitemap.xml public/ || true
+          cp -r bursaries public/ || true
           cp -r assets public/ || true
           touch public/.nojekyll
 
+      # =========================
+      # DEPLOY
+      # =========================
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
