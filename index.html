@@ -1,17 +1,90 @@
-<meta name="google-site-verification" content="FksF-puarSu9Is0W1PIdd6bPGd14h6oFpCENYF45sSA" />
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Bursary Alerts SA</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Bursary Alerts South Africa 2026 | NSFAS & Study Funding</title>
+
+  <meta name="description" content="Find verified bursaries in South Africa including NSFAS, engineering, teaching, medical and private company funding opportunities for 2026. Updated regularly.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#f5f5f5; }
+    header { background:#0b3d91; color:white; padding:30px; text-align:center; }
+    main { padding:20px; max-width:1000px; margin:auto; background:white; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:15px; }
+    .card { padding:15px; border:1px solid #ddd; border-radius:8px; background:#fff; }
+    a { text-decoration:none; color:#0b3d91; }
+    footer { text-align:center; padding:20px; font-size:12px; color:#666; }
+  </style>
 </head>
+
 <body>
 
-<h1>🎓 Bursary Alerts SA</h1>
-<p>Updated automatically daily</p>
+<header>
+  <h1>Bursary Alerts South Africa 2026</h1>
+  <p>Find verified NSFAS, government & private bursaries for South African students</p>
+</header>
 
-<div id="list"></div>
+<main>
 
-<script src="script.js"></script>
+  <h2>Latest Verified Bursaries</h2>
+  <p>
+    Explore updated bursary opportunities in South Africa. Each listing includes eligibility requirements, closing dates, and application steps.
+  </p>
+
+  <div id="bursaries" class="grid"></div>
+
+  <h2>Popular Categories</h2>
+
+  <div class="grid">
+    <div class="card">
+      <h3><a href="categories/engineering.html">Engineering Bursaries</a></h3>
+      <p>Mechanical, civil, electrical and mining funding opportunities.</p>
+    </div>
+
+    <div class="card">
+      <h3><a href="categories/accounting.html">Accounting Bursaries</a></h3>
+      <p>Finance, auditing and business study funding.</p>
+    </div>
+
+    <div class="card">
+      <h3><a href="categories/medicine.html">Medical Bursaries</a></h3>
+      <p>Healthcare, nursing and medical studies funding.</p>
+    </div>
+
+    <div class="card">
+      <h3><a href="categories/teaching.html">Teaching Bursaries</a></h3>
+      <p>Education and teaching qualification funding.</p>
+    </div>
+  </div>
+
+  <h2>About This Site</h2>
+  <p>
+    Bursary Alerts South Africa helps students find verified funding opportunities. We focus on clarity, eligibility requirements, and application guidance to improve accessibility for all learners.
+  </p>
+
+</main>
+
+<footer>
+  <p>© 2026 Bursary Alerts SA | <a href="privacy.html">Privacy Policy</a></p>
+</footer>
+
+<script>
+fetch('./data/bursaries.json')
+  .then(res => res.json())
+  .then(data => {
+    const container = document.getElementById("bursaries");
+
+    container.innerHTML = data.slice(0, 6).map(b => `
+      <div class="card">
+        <h3>${b.name}</h3>
+        <p>${b.description || ""}</p>
+        <p><strong>Closing:</strong> ${b.closingDate || "TBA"}</p>
+        <a href="bursaries/${b.slug}.html">View Details →</a>
+      </div>
+    `).join('');
+  });
+</script>
+
 </body>
 </html>
