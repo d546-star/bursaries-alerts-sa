@@ -53,5 +53,39 @@ bursaries.forEach(b => {
     html
   );
 });
+// =====================
+// CATEGORY ENGINE (STEP 4)
+// =====================
+const categories = {};
 
+bursaries.forEach(b => {
+  const cat = b.category || "general";
+  if (!categories[cat]) categories[cat] = [];
+  categories[cat].push(b);
+});
+
+Object.keys(categories).forEach(cat => {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>${cat} bursaries</title>
+  <meta name="description" content="${cat} bursaries in South Africa">
+</head>
+<body>
+  <h1>${cat} bursaries</h1>
+  <ul>
+    ${categories[cat].map(b =>
+      `<li><a href="/bursaries/${b.slug}.html">${b.name}</a></li>`
+    ).join("")}
+  </ul>
+</body>
+</html>
+  `;
+
+  fs.writeFileSync(
+    path.join(__dirname, "public", `${cat}.html`),
+    html
+  );
+});
 console.log("V6 pages generated");
