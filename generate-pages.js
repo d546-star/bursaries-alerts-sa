@@ -1,37 +1,29 @@
 const fs = require("fs");
+const path = require("path");
 
-const data = JSON.parse(fs.readFileSync("bursaries.json", "utf8"));
+const data = require("./data/bursaries.json");
 
-const template = (item) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>${item.title} | Bursaries South Africa</title>
-  <meta name="description" content="${item.description}">
-</head>
+const outputDir = path.join(__dirname, "public/bursaries");
 
-<body>
+fs.rmSync(outputDir, { recursive: true, force: true });
+fs.mkdirSync(outputDir, { recursive: true });
 
-<h1>${item.title}</h1>
+data.forEach(b => {
+  const html = `
+  <html>
+    <head>
+      <title>${b.name}</title>
+    </head>
+    <body>
+      <h1>${b.name}</h1>
+      <p>${b.description || ""}</p>
+      <p>Closing Date: ${b.closingDate || "TBA"}</p>
+    </body>
+  </html>
+  `;
 
-<p>${item.description}</p>
-
-<a href="${item.link}" target="_blank">Apply Here</a>
-
-<br><br>
-<a href="../index.html">← Back to home</a>
-
-</body>
-</html>
-`;
-
-if (!fs.existsSync("public/bursary")) {
-  fs.mkdirSync("public/bursary", { recursive: true });
-}
-
-data.forEach(item => {
   fs.writeFileSync(
-    `public/bursary/${item.slug}.html`,
-    template(item)
+    path.join(outputDir, `${b.slug}.html`),
+    html
   );
 });
