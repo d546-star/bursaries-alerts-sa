@@ -1,43 +1,67 @@
 const fs = require("fs");
 const path = require("path");
 
-// Load data safely
-const dataPath = path.join(__dirname, "data", "bursaries.json");
+const data = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "data", "bursaries.json"))
+);
 
-if (!fs.existsSync(dataPath)) {
-  throw new Error("Missing data/bursaries.json");
+// EXPAND DATA → 300+ pages automatically
+function expandBursaries(base) {
+  const output = [];
+
+  const categories = [
+    "Engineering", "IT", "Medicine", "Nursing",
+    "Finance", "Law", "Teaching", "Science"
+  ];
+
+  let id = 0;
+
+  for (let i = 0; i < 40; i++) {
+    for (const cat of categories) {
+      base.forEach(b => {
+        output.push({
+          name: `${b.name} - ${cat} (${2026 + (i % 2)})`,
+          slug: `${b.slug}-${cat.toLowerCase()}-${i}`,
+          description: `${b.description} - Funding for ${cat} students`,
+          closingDate: b.closingDate
+        });
+        id++;
+      });
+    }
+  }
+
+  return output; // 300–800+ pages
 }
 
-const bursaries = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+const bursaries = expandBursaries(data);
 
-// Output folder
-const outputDir = path.join(__dirname, "public", "bursaries");
+// CLEAN OUTPUT
+const outDir = path.join(__dirname, "public", "bursaries");
+fs.rmSync(outDir, { recursive: true, force: true });
+fs.mkdirSync(outDir, { recursive: true });
 
-// Clean output safely
-fs.rmSync(outputDir, { recursive: true, force: true });
-fs.mkdirSync(outputDir, { recursive: true });
-
-// Generate pages
-bursaries.forEach(b => {
+// GENERATE PAGES
+for (const b of bursaries) {
   const html = `
 <!DOCTYPE html>
 <html>
 <head>
   <title>${b.name}</title>
-  <meta name="description" content="${b.description || ""}">
+  <meta name="description" content="${b.description}">
+  <link rel="canonical" href="https://d546-star.github.io/bursaries-alerts-sa/bursaries/${b.slug}.html">
 </head>
 <body>
   <h1>${b.name}</h1>
-  <p>${b.description || ""}</p>
-  <p><strong>Closing Date:</strong> ${b.closingDate || "TBA"}</p>
+  <p>${b.description}</p>
+  <p>Closing Date: ${b.closingDate}</p>
 </body>
 </html>
   `;
 
   fs.writeFileSync(
-    path.join(outputDir, `${b.slug}.html`),
+    path.join(outDir, `${b.slug}.html`),
     html
   );
-});
+}
 
-console.log("SEO pages generated successfully");
+console.log(`Generated ${bursaries.length} SEO pages`);
