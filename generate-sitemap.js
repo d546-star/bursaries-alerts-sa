@@ -1,25 +1,51 @@
 const fs = require("fs");
-const baseUrl = "https://d546-star.github.io/bursaries-alerts-sa";
+const path = require("path");
+
+const baseUrl =
+  "https://d546-star.github.io/bursaries-alerts-sa";
 
 const bursaries = require("./data/bursaries.json");
+const categories = require("./data/categories.json");
+const provinces = require("./data/provinces.json");
 
-let urls = [
+const urls = [
   "/",
-  ...bursaries.map(b => `/bursaries/${b.slug}.html`)
+  "/about.html",
+  "/privacy.html",
+
+  ...bursaries.map(
+    b => `/bursaries/${b.slug}.html`
+  ),
+
+  ...categories.map(
+    c => `/category/${c}.html`
+  ),
+
+  ...provinces.map(
+    p => `/province/${p}.html`
+  )
 ];
 
-let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+let xml =
+`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
 
-urls.forEach(u => {
+for (const u of urls) {
   xml += `
   <url>
     <loc>${baseUrl}${u}</loc>
   </url>`;
-});
+}
 
-xml += "\n</urlset>";
+xml += `
+</urlset>`;
 
-fs.writeFileSync("public/sitemap.xml", xml);
+fs.mkdirSync(
+  path.join(__dirname, "public"),
+  { recursive: true }
+);
 
-console.log("V6 sitemap generated");
+fs.writeFileSync(
+  path.join(__dirname, "public", "sitemap.xml"),
+  xml
+);
