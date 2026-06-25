@@ -2,17 +2,20 @@ const fs = require("fs");
 const path = require("path");
 
 const bursaries = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "data", "bursaries.json"))
+  fs.readFileSync(
+    path.join(__dirname, "data", "bursaries.json"),
+    "utf8"
+  )
 );
 
-const categories = ["engineering", "it", "medicine", "finance"];
-
-function buildLinks(current, category) {
+function buildLinks(currentSlug, category) {
   return bursaries
+    .filter(b => b.slug !== currentSlug)
     .slice(0, 6)
-    .map(b => {
-      return `<li><a href="/bursaries/${category}/${b.slug}.html">${b.title}</a></li>`;
-    })
+    .map(
+      b =>
+        `<li><a href="../bursaries/${b.slug}.html">${b.name}</a></li>`
+    )
     .join("");
 }
 
