@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy V2 Stable Site
 
 on:
   push:
@@ -15,9 +15,9 @@ jobs:
         with:
           node-version: 20
 
-      - run: node generate-pages.js
+      - run: node scripts/build.js
 
-      - name: Verify output exists
+      - name: Verify public folder
         run: |
           ls -R public
           test -s public/index.html
