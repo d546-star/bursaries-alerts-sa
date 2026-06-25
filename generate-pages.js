@@ -1,36 +1,41 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataPath = path.join(__dirname, "data", "bursaries.json");
-const outputDir = path.join(__dirname, "public", "bursaries");
+const outputDir = path.join(__dirname, "public");
 
-fs.mkdirSync(outputDir, { recursive: true });
-
-if (!fs.existsSync(dataPath)) {
-  throw new Error("Missing data/bursaries.json");
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
 }
 
-const bursaries = JSON.parse(fs.readFileSync(dataPath, "utf-8"));
+// SAMPLE CONTENT (replace with your real bursary generator logic)
+const bursaries = [
+  { title: "NSFAS Bursary", link: "#" },
+  { title: "Vodacom Bursary", link: "#" }
+];
 
-bursaries.forEach(b => {
-  const html = `
+const html = `
 <!DOCTYPE html>
 <html>
 <head>
-  <title>${b.name}</title>
+  <meta charset="UTF-8">
+  <title>Bursaries Alerts SA</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>${b.name}</h1>
-  <p>${b.description}</p>
-  <p>Closing: ${b.closingDate}</p>
+  <h1>Bursaries in South Africa</h1>
+  <ul>
+    ${bursaries.map(b => `<li><a href="${b.link}">${b.title}</a></li>`).join("")}
+  </ul>
 </body>
 </html>
 `;
 
-  fs.writeFileSync(
-    path.join(outputDir, `${b.slug}.html`),
-    html
-  );
-});
+const outputPath = path.join(outputDir, "index.html");
 
-console.log("Pages generated");
+if (!html || html.trim().length < 50) {
+  throw new Error("HTML generation failed: output too small");
+}
+
+fs.writeFileSync(outputPath, html, "utf8");
+
+console.log("Pages generated successfully:", outputPath);
