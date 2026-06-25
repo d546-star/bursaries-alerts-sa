@@ -1,17 +1,28 @@
+const fs = require("fs");
+const path = require("path");
 const { execSync } = require("child_process");
 
-console.log("🚀 V4 AUTOPILOT START");
+const publicDir = path.join(__dirname, "../public");
 
-// STEP 1: fetch new bursaries
-execSync("node scripts/fetch-bursaries.js", { stdio: "inherit" });
+// Clean build
+fs.rmSync(publicDir, { recursive: true, force: true });
+fs.mkdirSync(publicDir, { recursive: true });
 
-// STEP 2: AI enrichment
-execSync("node scripts/enrich-ai.js", { stdio: "inherit" });
+console.log("🚀 Starting V2 stable build");
 
-// STEP 3: generate pages
+// Run generator
 execSync("node scripts/generate-pages.js", { stdio: "inherit" });
 
-// STEP 4: sitemap
-execSync("node scripts/generate-sitemap.js", { stdio: "inherit" });
+// SAFETY CHECK (THIS IS WHAT FIXES YOUR WHITE PAGE ISSUE)
+const indexPath = path.join(publicDir, "index.html");
 
-console.log("✅ AUTOPILOT COMPLETE");
+if (!fs.existsSync(indexPath)) {
+  throw new Error("❌ index.html missing - build aborted");
+}
+
+const stats = fs.statSync(indexPath);
+if (stats.size < 100) {
+  throw new Error("❌ index.html too small - likely broken build");
+}
+
+console.log("✅ Build validated successfully");
