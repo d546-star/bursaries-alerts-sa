@@ -4,25 +4,28 @@ const { execSync } = require("child_process");
 
 const publicDir = path.join(__dirname, "../public");
 
-// Clean build
+// Clean build folder
 fs.rmSync(publicDir, { recursive: true, force: true });
 fs.mkdirSync(publicDir, { recursive: true });
 
-console.log("🚀 Starting V2 stable build");
+console.log("🚀 Starting V2 build...");
 
-// Run generator
+// Generate pages
 execSync("node scripts/generate-pages.js", { stdio: "inherit" });
 
-// SAFETY CHECK (THIS IS WHAT FIXES YOUR WHITE PAGE ISSUE)
+// =====================
+// SAFETY CHECKS
+// =====================
 const indexPath = path.join(publicDir, "index.html");
 
 if (!fs.existsSync(indexPath)) {
-  throw new Error("❌ index.html missing - build aborted");
+  throw new Error("❌ Build failed: index.html missing");
 }
 
-const stats = fs.statSync(indexPath);
-if (stats.size < 100) {
-  throw new Error("❌ index.html too small - likely broken build");
+const size = fs.statSync(indexPath).size;
+
+if (size < 100) {
+  throw new Error("❌ Build failed: index.html too small");
 }
 
-console.log("✅ Build validated successfully");
+console.log("✅ V2 build successful");
